@@ -1,0 +1,21 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import QuizWorkspace from "../components/QuizWorkspace";
+
+const entries = await getCollection("questions", ({ data }) => data.status === "reviewed");
+const questions = entries
+  .sort((a, b) => a.data.id.localeCompare(b.data.id))
+  .map((entry) => ({ ...entry.data, explanation: entry.body }));
+
+const noteEntries = await getCollection("notes");
+const notes = noteEntries.map((entry) => ({
+  id: entry.id,
+  ...entry.data,
+  body: entry.body,
+}));
+---
+
+<Layout title="AWS SAA Quiz">
+  <QuizWorkspace client:load questions={questions} notes={notes} />
+</Layout>
