@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AWS SAA Quiz badge">
+  <defs>
+    <linearGradient id="badge" x1="10" y1="6" x2="54" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#315ba8"/>
+      <stop offset="1" stop-color="#17233a"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 3 55 13v18c0 14-9.5 24.5-23 30C18.5 55.5 9 45 9 31V13L32 3Z" fill="url(#badge)" stroke="#ee8b26" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M18 24h28" stroke="#ee8b26" stroke-width="4" stroke-linecap="round"/>
+  <text x="32" y="43" fill="#fff" font-family="Arial, sans-serif" font-size="17" font-weight="700" text-anchor="middle">SAA</text>
+</svg>
