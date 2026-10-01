@@ -8,6 +8,7 @@ keywords: [all, notes]
 
 # IAM
 - **IAM Access Analyzer** are specifically intended for evaluating permissions and detecting resources that are accessible outside your intended scope
+- **Service control policy (SCP)** is a type of organization policy that you can use to manage permissions in your organization
 # EC2
 - **User data** script that runs at the first launch with root privilege
 - **EBS Snapshots** they have a retention rule to prevent deletions
@@ -20,12 +21,16 @@ keywords: [all, notes]
 - **Versioning and MFA** can be actived for preventing deletions
 - **Invalid** Amazon S3 Intelligent-Tiering => Amazon S3 Standard. Amazon S3 One Zone-IA => Amazon S3 Standard-IA
 - Different versions of a single object can have **different retention modes** and periods. When you apply a retention period to an object version explicitly, you specify a **Retain Until Date** for the object version
+- You can't move data to Glacier without going to standard first, so lifecycle policy
 # Lambda
 - Lambda now can be containered
 - If you intend to reuse code in more than one AWS Lambda function, you should consider creating an AWS Lambda Layer for the reusable code
 - AWS **Lambda functions** always operate from an AWS-owned VPC and hence have access to any public internet address or public AWS APIs. Once an AWS Lambda function is VPC-enabled, it will need a route through a Network Address Translation gateway (NAT gateway) in a public subnet to access public resources
 - Lambda has a 1k **concurrent quota**
 - A **Lambda layer** is a .zip file archive that contains supplementary code or data.
+# Cognito
+- **User pools** authenticate like normal, **identity pools** authenticate with social media
+- Cannot be attached to Cloudfront but can attach to **ALB**
 # ECS, EKS
 - **EKS Pods** IAM policies cannot be directly attached to Pods using annotations. You need to create separate EKS accounts
 - Amazon **ECS with EC2** launch type is charged based on EC2 instances and EBS volumes used. Amazon **ECS with Fargate** launch type is charged based on vCPU and memory resources that the containerized application requests
@@ -40,10 +45,11 @@ keywords: [all, notes]
 - **Amazon OpenSearch Service** for full-text indexing and real-time search. 
 - **OpenSearch** is purpose-built for search and analytics workloads.
 - For visualization, **Amazon QuickSight** can be connected to OpenSearch or other data sources to build rich dashboards. This architecture provides a scalable, fully managed, real-time search and analytics platform using AWS-native services.
-- **AWS Glue**
+- **AWS Glue crawler** can scan the files in Amazon S3, infer their schema, and create or update corresponding table definitions in the AWS Glue Data Catalog
 - **Amazon Redshift Serverless** offers massively parallel processing MPP. Also supports ML as well as **Athena**
 # Security
 - **WAF and Cloudfront** have **Geo Restriction** but CF cannot be in a VPC
+- **WAF** cannot be attached to NLB
 - **AWS KMS**: Keys rotate every year.
 - **SSE-S3**: Server side encription. No rotation can be configured.
 - **Amazon GuardDuty** to monitor any malicious activity on data stored in Amazon S3, AWS CloudTrail Events, Amazon VPC Flow Logs, and DNS Logs. Use **Amazon Macie** to identify any sensitive data stored on Amazon S3
