@@ -22,7 +22,7 @@ for (const domain of readdirSync(outputRoot)) {
 }
 
 const slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 72);
-const escapeYaml = (value) => String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+const escapeYaml = (value) => String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\r?\n/g, "\\n");
 const yamlList = (values) => `[${values.map((value) => `"${escapeYaml(value)}"`).join(", ")}]`;
 const fail = (file, message) => { throw new Error(`${relative(root, file)}: ${message}`); };
 const cleanHtml = (value = "") => String(value).replace(/<br[^>]*>/gi, "\n").replace(/<[/]?p>/gi, "\n").replace(/<li>/gi, "- ").replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&#39;/gi, "'").replace(/&quot;/gi, '"').split("\n").map((line) => line.trim()).filter(Boolean).join("\n\n");
@@ -116,8 +116,121 @@ function normalizeExportedItem(item, file, position) {
     correct: [String(correctOption.id)],
     references: [],
     tags: metadata.tags,
-    status: "reviewed",
+    status: "draft",
     explanation: `${correctExplanation}${incorrectExplanations.length ? `\n\n## Why the other options are incorrect\n\n${incorrectExplanations.join("\n")}` : ""}`,
+  };
+}
+
+const assessmentDomains = Object.fromEntries(Object.entries({
+  databases: [203, 303, 311, 315, 319],
+  storage: [205, 223, 231, 237, 271, 285, 287, 299, 305, 313],
+  networking: [209, 215, 235, 249, 251, 255, 269, 273, 289, 309, 317, 327, 329],
+  security: [207, 213, 225, 229, 233, 241, 245, 247, 257, 259, 261, 275, 277, 279, 297, 323, 325, 331],
+  compute: [217, 227, 267, 291, 295, 321],
+  integration: [211, 243, 253, 283],
+  operations: [219, 239, 265, 293, 307],
+  "data-and-analytics": [221, 263, 301],
+  "machine-learning": [281],
+}).flatMap(([domain, suffixes]) => suffixes.map((suffix) => [`119197${suffix}`, domain])));
+
+const servicePatterns = [
+  ["Amazon RDS Custom", /\bRDS Custom\b/i], ["Amazon Aurora Global Database", /\bAurora Global Database\b/i],
+  ["DynamoDB Accelerator (DAX)", /\b(?:DAX|DynamoDB Accelerator)\b/i],
+  ["Amazon DynamoDB", /\bDynamoDB\b/i], ["Amazon RDS", /\b(?:Amazon )?RDS\b/i],
+  ["Amazon Aurora", /\bAurora\b/i], ["Amazon Neptune", /\bNeptune\b/i],
+  ["Amazon ECS", /\b(?:Amazon )?ECS\b|\bElastic Container Service\b/i],
+  ["Amazon EKS", /\b(?:Amazon )?EKS\b|\bElastic Kubernetes Service\b/i],
+  ["AWS Fargate", /\bFargate\b/i], ["AWS Lambda", /\bLambda\b/i],
+  ["Amazon EC2", /\b(?:Amazon )?EC2\b|\bElastic Compute Cloud\b/i],
+  ["AWS Elastic Beanstalk", /\bElastic Beanstalk\b/i],
+  ["Amazon S3", /\b(?:Amazon )?S3\b|\bSimple Storage Service\b/i],
+  ["Amazon EBS", /\b(?:Amazon )?EBS\b|\bElastic Block Store\b/i],
+  ["Amazon EFS", /\b(?:Amazon )?EFS\b|\bElastic File System\b/i],
+  ["Amazon FSx", /\bFSx\b/i], ["AWS Storage Gateway", /\bStorage Gateway\b|\bFile Gateway\b/i],
+  ["AWS DataSync", /\bDataSync\b/i], ["AWS Direct Connect", /\bDirect Connect\b/i],
+  ["AWS Global Accelerator", /\bGlobal Accelerator\b/i], ["AWS Transit Gateway", /\btransit gateway\b/i],
+  ["Amazon VPC", /\bVPC\b|\bvirtual private cloud\b/i],
+  ["AWS IAM Identity Center", /\bIAM Identity Center\b/i],
+  ["AWS IAM", /\bIAM\b|\bIdentity and Access Management\b/i],
+  ["AWS Directory Service", /\bDirectory Service\b|\bAD Connector\b/i],
+  ["Amazon CloudWatch", /\bCloudWatch\b/i], ["AWS Config", /\bAWS Config\b/i],
+  ["AWS Certificate Manager", /\b(?:ACM|Certificate Manager)\b/i], ["AWS KMS", /\b(?:KMS|Key Management Service)\b/i],
+  ["Amazon SQS", /\b(?:Amazon )?SQS\b|\bSimple Queue Service\b/i],
+  ["Amazon SNS", /\b(?:Amazon )?SNS\b|\bSimple Notification Service\b/i],
+  ["Amazon EventBridge", /\bEventBridge\b/i], ["Amazon Kinesis Data Streams", /\bKinesis Data Streams\b|\bKDS\b/i],
+  ["AWS DMS", /\b(?:AWS )?DMS\b|\bDatabase Migration Service\b/i],
+  ["AWS SCT", /\b(?:AWS )?SCT\b|\bSchema Conversion Tool\b/i],
+  ["Amazon CloudFront", /\bCloudFront\b/i], ["Amazon GuardDuty", /\bGuardDuty\b/i],
+  ["Amazon Macie", /\bMacie\b/i], ["IAM Access Analyzer", /\bAccess Analyzer\b/i],
+  ["AWS Transfer Family", /\bTransfer Family\b/i], ["Amazon OpenSearch Service", /\bOpenSearch\b/i],
+  ["Amazon Comprehend", /\bComprehend\b/i], ["AWS Snow Family", /\bSnowball\b|\bSnow Family\b/i],
+  ["AWS Cost Anomaly Detection", /\bCost Anomaly Detection\b/i],
+  ["AWS Cost Optimization Hub", /\bCost Optimization Hub\b/i],
+];
+
+const serviceDomains = {
+  "Amazon RDS Custom": "databases", "Amazon Aurora Global Database": "databases",
+  "DynamoDB Accelerator (DAX)": "databases", "Amazon DynamoDB": "databases",
+  "Amazon RDS": "databases", "Amazon Aurora": "databases", "Amazon Neptune": "databases",
+  "Amazon ECS": "compute", "Amazon EKS": "compute", "AWS Fargate": "compute",
+  "AWS Lambda": "compute", "Amazon EC2": "compute", "AWS Elastic Beanstalk": "compute",
+  "Amazon S3": "storage", "Amazon EBS": "storage", "Amazon EFS": "storage",
+  "Amazon FSx": "storage", "AWS Storage Gateway": "storage", "AWS DataSync": "storage",
+  "AWS Snow Family": "storage", "AWS Transfer Family": "storage",
+  "AWS Direct Connect": "networking", "AWS Global Accelerator": "networking",
+  "AWS Transit Gateway": "networking", "Amazon VPC": "networking",
+  "Amazon CloudFront": "networking", "AWS IAM Identity Center": "security",
+  "AWS IAM": "security", "AWS Directory Service": "security", "AWS Config": "security",
+  "AWS Certificate Manager": "security", "AWS KMS": "security",
+  "Amazon GuardDuty": "security", "Amazon Macie": "security", "IAM Access Analyzer": "security",
+  "Amazon SQS": "integration", "Amazon SNS": "integration",
+  "Amazon EventBridge": "integration", "Amazon Kinesis Data Streams": "integration",
+  "AWS DMS": "operations", "AWS SCT": "operations", "Amazon CloudWatch": "operations",
+  "AWS Cost Anomaly Detection": "operations", "AWS Cost Optimization Hub": "operations",
+  "Amazon OpenSearch Service": "data-and-analytics", "Amazon Comprehend": "machine-learning",
+};
+
+function inferAssessmentDomain(item, correctText) {
+  if (item.section === "Design Secure Architectures") return "security";
+  const generic = new Set(["Amazon EC2", "Amazon S3", "Amazon VPC", "AWS IAM"]);
+  const matches = servicePatterns.map(([name, pattern]) => ({ name, index: correctText.search(pattern) })).filter(({ index }) => index >= 0).sort((a, b) => a.index - b.index);
+  const primary = matches.find(({ name }) => !generic.has(name)) ?? matches[0];
+  return serviceDomains[primary?.name] ?? (item.section === "Design Cost-Optimized Architectures" ? "operations" : "architecture");
+}
+
+function normalizeAssessment(item, file, position) {
+  const sourceId = String(item.id ?? "");
+  const title = cleanHtml(item.question_plain ?? item.prompt?.question).replace(/\s+/g, " ").trim();
+  const answers = item.prompt?.answers;
+  const correct = item.correct_response;
+  if (!/^\d+$/.test(sourceId) || !title) fail(file, `entry ${position}: assessment needs numeric id and prompt`);
+  if (!Array.isArray(answers) || answers.length < 2) fail(file, `entry ${position}: assessment needs answers`);
+  if (!Array.isArray(correct) || !correct.length) fail(file, `entry ${position}: assessment needs correct_response`);
+  const choices = answers.map((answer, index) => ({ id: String.fromCharCode(97 + index), text: cleanHtml(answer) }));
+  if (choices.some((choice) => !choice.text)) fail(file, `entry ${position}: empty answer`);
+  if (correct.some((id) => !choices.some((choice) => choice.id === id)) || new Set(correct).size !== correct.length) fail(file, `entry ${position}: invalid correct_response`);
+  const type = item.assessment_type === "multi-select" ? "multiple" : item.assessment_type === "multiple-choice" ? "single" : null;
+  if (!type || (type === "single" && correct.length !== 1) || (type === "multiple" && correct.length < 2)) fail(file, `entry ${position}: invalid assessment_type`);
+  const correctText = correct.map((id) => choices.find((choice) => choice.id === id)?.text).join(" ");
+  const comparisonText = `${title} ${correctText}`;
+  const services = servicePatterns.filter(([, pattern]) => pattern.test(comparisonText)).map(([name]) => name);
+  const section = slug(item.section ?? "unknown-section");
+  const examTag = slug(file.split(/[\\/]/).pop().replace(/\.[^.]+$/, ""));
+  const tags = ["imported", examTag, section];
+  if (["119197221", "119197231", "119197249"].includes(sourceId)) tags.push("source-answer-needs-review");
+  return {
+    id: `saa-source-${sourceId}`,
+    title,
+    domain: assessmentDomains[sourceId] ?? inferAssessmentDomain(item, correctText),
+    services,
+    difficulty: "medium",
+    type,
+    choices,
+    correct,
+    references: [],
+    tags,
+    status: "draft",
+    explanation: cleanHtml(item.prompt?.explanation) || "The source provided no explanation.",
   };
 }
 
@@ -125,9 +238,18 @@ const prepared = [];
 for (const name of files) {
   const file = join(inbox, name);
   const documents = parseJsonDocuments(readFileSync(file, "utf8"), file);
+  if (documents.every((document) => Array.isArray(document.results) && document.results.every((entry) => entry._class === "user_answers_assessment"))) {
+    console.log(`Skipping assessment results in ${relative(root, file)} (preserved for analysis).`);
+    continue;
+  }
+  if (/results\.json$/i.test(name) && documents.every((document) => Array.isArray(document.results) && document.results.every((entry) => entry._class === "assessment"))) {
+    console.log(`Skipping ${relative(root, file)}: named as results but contains questions, not scores (preserved).`);
+    continue;
+  }
+  const assessments = documents.flatMap((document) => Array.isArray(document.results) && document.results.every((entry) => entry._class === "assessment") ? document.results : []);
   const exportedItems = [...new Map(documents.flatMap((parsed) => parsed.data?.quizLatestAttemptByQuizId?.itemResponses?.map((response) => response.item).filter(Boolean) ?? parsed.data?.quizItemSearch?.items?.filter(Boolean) ?? []).map((item) => [item.id, item])).values()];
   const entries = documents.flatMap((parsed) => Array.isArray(parsed) ? parsed : [parsed]);
-  const questions = exportedItems.length ? exportedItems.map((item, index) => normalizeExportedItem(item, file, index + 1)) : entries.map((entry, index) => normalizeQuestion(entry, file, index + 1));
+  const questions = assessments.length ? assessments.map((item, index) => normalizeAssessment(item, file, index + 1)) : exportedItems.length ? exportedItems.map((item, index) => normalizeExportedItem(item, file, index + 1)) : entries.map((entry, index) => normalizeQuestion(entry, file, index + 1));
   for (const question of questions) {
     if (ids.has(question.id)) fail(file, `duplicate id ${question.id}`);
     ids.add(question.id);
@@ -135,8 +257,8 @@ for (const name of files) {
   prepared.push({ file, questions });
 }
 
-if (!files.length) {
-  console.log("No JSON files found in imports/questions.");
+if (!prepared.length) {
+  console.log("No question JSON files found in imports/questions.");
   process.exit(0);
 }
 

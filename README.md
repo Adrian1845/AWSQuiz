@@ -12,6 +12,7 @@ src/content/questions/<domain>/*.md   One Markdown file per question
 src/content/notes/<domain>/*.md       Searchable study notes
 imports/questions/                    Temporary inbox for question JSON exports
 scripts/import-questions.mjs          Validates and converts inbox exports
+scripts/analyze-exam-results.mjs      Joins scored attempts to imported questions
 ```
 
 Keep the app static: interactive state belongs in the React workspace and browser-only preferences belong in `localStorage`. There is intentionally no backend, account system, or shared user state.
@@ -100,7 +101,9 @@ When the preview reports the expected counts and no errors, write the Markdown f
 npm run import:questions -- --commit
 ```
 
-The commit command deletes only the source files it processed successfully. It supports the current exported format, including files containing adjacent JSON documents, and avoids importing duplicate source question IDs.
+The commit command deletes only the source files it processed successfully. It supports the current exported format, including files containing adjacent JSON documents and exam assessment exports, and avoids importing duplicate source question IDs. Exam result files in the same inbox are ignored and preserved for analysis. Imported questions stay `draft` until reviewed.
+
+For scored exam exports, run `node scripts/analyze-exam-results.mjs` to join each result's `assessment.id` with its imported question. The current findings and study links are in [the exam summary](docs/exams/resumen-examenes.md); [exam 1](docs/exams/exam1-analisis.md) has a more detailed review.
 
 To author a question manually, use stable choice IDs and keep `correct` as an array:
 

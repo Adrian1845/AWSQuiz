@@ -38,3 +38,7 @@ Each file may contain one question object or an array. Use this shape when possi
 ```
 
 `question` can be used instead of `title`, `options` instead of `choices`, and a numeric answer index or answer text can be used instead of `correct`. Every imported question is marked `draft` for review before it appears in the quiz.
+
+Exam exports containing `results` with `_class: "assessment"` are also supported. The importer uses each assessment's numeric `id`, prompt, answers, correct response and exam section; it marks these questions `draft`. Files containing `_class: "user_answers_assessment"` are exam results, so the importer skips and preserves them for score analysis. Review the preview output before committing an import.
+
+Keep scored attempts in `examNresults.json`. A file with that name that contains only `_class: "assessment"` entries has questions but no score; the importer preserves it and excludes it from result analysis.
