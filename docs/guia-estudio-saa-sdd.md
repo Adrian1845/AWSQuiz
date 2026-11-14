@@ -4,6 +4,8 @@
 
 Abre una ficha para ver qué hace el servicio, cuándo elegirlo, detalles de examen, un escenario resuelto y su diferencia frente a opciones próximas. El índice sigue el [temario oficial SAA-C03](https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/saa-03-in-scope-services.html); AWS advierte que no es exhaustivo.
 
+**Próxima sesión:** [temas pendientes de repaso](exams/proximo-repaso.md).
+
 ## Cómputo, contenedores y ejecución sin servidores
 
 - [Amazon EC2](fichas/computo/amazon-ec2.md)

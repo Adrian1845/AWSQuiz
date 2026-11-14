@@ -1,6 +1,6 @@
 # Dónde estás fallando: exámenes 1–7
 
-**Datos disponibles (31-10-2026):** 65 preguntas importadas de cada examen, del 1 al 7. Hay respuestas puntuadas para los exámenes **1–6**; el archivo del examen 2 contiene **50 de las 65 respuestas**. Las otras 15 preguntas de ese examen no se cuentan como fallos. El examen 7 no tiene resultados. La tabla muestra los primeros intentos; el nuevo resultado del examen 4 se analiza aparte.
+**Datos disponibles (03-11-2026):** 65 preguntas importadas de cada examen, del 1 al 7. Hay respuestas puntuadas para los exámenes **1–6**. El primer intento del examen 2 contiene **50 de las 65 respuestas**; las otras 15 no se cuentan como fallos de ese intento. El examen 7 no tiene resultados. La tabla muestra solo los primeros intentos; los reintentos de los exámenes 2 y 4 se analizan aparte.
 
 | Examen | Aciertos | Fallos según la fuente |
 |---|---:|---:|
@@ -14,9 +14,11 @@
 
 **Examen 4, segundo intento:** **42/65 (64,6 %)**, cinco aciertos más que antes. Corregiste 16 fallos, aparecieron 11 fallos nuevos y mantuviste 12. La mejora más clara está en selección múltiple: **3/12 → 7/12**. Consulta el [análisis del reintento](exam4-reintento.md), que separa conceptos útiles de claves discutibles. Este segundo intento no se suma al total anterior porque repite las mismas 65 preguntas.
 
-El primer intento del examen 4 fue el de menor puntuación **entre los completos**: 11 errores de rendimiento, 8 de seguridad, 5 de resiliencia y 4 de coste. El examen 2 parcial quedó en 56,0 %, pero faltan 15 respuestas para compararlo como examen completo. Hay **312 enunciados distintos** entre los 375 primeros intentos; 63 se repiten, así que el total no representa 375 problemas independientes.
+**Examen 2, segundo intento:** **45/65 (69,2 %)**. En las 50 preguntas comunes pasaste de **28 a 36 aciertos**: corregiste 13, cambiaste a incorrectas 5 y mantuviste 9 mal. De las 15 antes sin responder, acertaste 9. La mayor concentración actual de fallos está en rendimiento (**11/24**). El [análisis del reintento](exam2-reintento.md) detalla las 20 preguntas falladas y señala claves discutibles. Tampoco se suma a la tabla de primeros intentos.
 
-En el examen 2, los 22 fallos se distribuyen entre rendimiento (7/18), resiliencia (7/13), seguridad (5/12) y coste (3/7). Sobresalen los escenarios con [EC2 y Auto Scaling](../../src/content/questions/compute/saa-source-184886805.md), [acceso a EFS](../../src/content/questions/security/saa-source-184886709.md) y [redes híbridas](../../src/content/questions/security/saa-source-184886755.md). En sus preguntas etiquetadas con VPC fallaste 4/5, aunque esa muestra es pequeña.
+El primer intento del examen 4 fue el de menor puntuación **entre los completos**: 11 errores de rendimiento, 8 de seguridad, 5 de resiliencia y 4 de coste. El primer intento parcial del examen 2 quedó en 56,0 %; no se compara como un examen completo. Hay **312 enunciados distintos** entre los 375 primeros intentos; 63 se repiten, así que el total no representa 375 problemas independientes.
+
+En el **primer intento parcial** del examen 2, los 22 fallos se distribuyen entre rendimiento (7/18), resiliencia (7/13), seguridad (5/12) y coste (3/7). Sobresalen los escenarios con [EC2 y Auto Scaling](../../src/content/questions/compute/saa-source-184886805.md), [acceso a EFS](../../src/content/questions/security/saa-source-184886709.md) y [redes híbridas](../../src/content/questions/security/saa-source-184886755.md). En sus preguntas etiquetadas con VPC fallaste 4/5, aunque esa muestra es pequeña. Consulta el [segundo intento](exam2-reintento.md) para ver las prioridades actuales.
 
 ## Prioridades de estudio según los primeros intentos
 
